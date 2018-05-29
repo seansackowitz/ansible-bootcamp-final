@@ -1,0 +1,35 @@
+- hosts: bastion
+  vars:
+    - username: username
+    - password: password
+  tasks:
+  - name: Use vaulted creds
+    include_vars: ./vars/opentlc_creds.yml
+
+  - name: Get common script
+    get_url:
+        dest: /tmp/
+        url: http://www.opentlc.com/download/ansible_bootcamp/scripts/common.sh
+        mode: 0777
+    
+  - name: Get jq script
+    package:
+        state: present
+        name: jq
+        use: auto
+    become: yes
+    
+  - name: Get order script
+    get_url:
+        dest: /tmp/
+        url: http://www.opentlc.com/download/ansible_bootcamp/scripts/order_svc.sh
+        mode: 0777
+  
+  - name: Execute Order
+    shell: ./order_svc.sh -c 'OPENTLC Automation' -i 'OpenStack for Ansible' -t 1 -y
+    args:
+      chdir: /tmp/
+    environment:
+      username: "{{ username }}"
+      password: "{{ password }}"
+      uri: https://labs.opentlc.com

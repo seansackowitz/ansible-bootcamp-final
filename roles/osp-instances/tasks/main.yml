@@ -1,0 +1,5 @@
+- import_tasks: Present.yml
+  when: instance_state == "present"
+
+- import_tasks: Absent.yml
+  when: instance_state == "absent"

@@ -1,0 +1,39 @@
+- name: copy ssh-key
+  hosts: bastion
+  become: yes
+  tasks:
+    - name: find key
+      find:
+        paths: /root/.ssh/
+        patterns: '*key.pem'
+      register: find_result
+    - name: grab key
+      fetch:
+        src: "{{ find_result.files[0].path }}"
+        dest: ./sshkey.pem
+        flat: yes
+
+- name: setup tower creds
+  hosts: tower_bastion
+  tasks:
+    - name: copy key to bastion
+      copy:
+        src: ./sshkey.pem
+        dest: /tmp/sshkey.pem
+    - name: ensure ansible-tower-cli is installed
+      pip:
+          state: present
+          name: ansible-tower-cli
+      become: yes
+    - name: Update tower creds
+      tower_credential:
+        name: AWS_Prod
+        kind: ssh
+        ssh_key_data: /tmp/sshkey.pem
+        tower_verify_ssl: no
+        tower_password: r3dh4t1!
+        tower_host: https://tower1.2a00.example.opentlc.com
+        tower_username: admin
+        organization: Default
+        state: present
+        username: ec2-user

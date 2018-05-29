@@ -1,0 +1,4 @@
+- name: Clean Prod
+  hosts: all
+  roles:
+    - cleaner

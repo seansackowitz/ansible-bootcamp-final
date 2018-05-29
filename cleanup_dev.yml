@@ -1,0 +1,31 @@
+- hosts: jumpbox
+  vars:
+    - instance_state: absent
+  ignore_errors: yes
+  tasks:
+  - name: Delete frontend instance
+    include_role:
+      name: osp-instances
+      vars_from: frontend.yaml
+
+  - name: Delete app1 instance
+    include_role:
+      name: osp-instances
+      vars_from: app1.yaml
+
+  - name: Delete app2 instance
+    include_role:
+      name: osp-instances
+      vars_from: app2.yaml
+
+  - name: Delete db instance
+    include_role:
+      name: osp-instances
+      vars_from: db.yaml
+
+  - name: Delete keypair
+    os_keypair:
+      cloud: ospcloud
+      state: absent
+      name: ansible_ssh
+      public_key_file: "{{ ansible_env.HOME }}/.ssh/test_id_rsa.pub"
